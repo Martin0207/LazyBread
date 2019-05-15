@@ -1,0 +1,28 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    /**
+     * 生成Java类的框架
+     */
+    implementation 'com.squareup:javapoet:1.10.0'
+
+    /**
+     * 给Processor类添加
+     * @AutoService(Processor.class)
+     * 相当于在系统中将xxxProcessor类注册一下
+     */
+    implementation 'com.google.auto.service:auto-service:1.0-rc4'
+    implementation project(path: ':annotation')
+}
+
+/**
+ * 默认为GBK编码，这里将编码格式改为常用的UTF-8
+ */
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"

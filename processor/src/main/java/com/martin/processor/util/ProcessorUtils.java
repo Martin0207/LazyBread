@@ -15,6 +15,8 @@ public class ProcessorUtils {
 
 
     /**
+     * 获取类型名
+     *
      * @param packageName 包名
      * @param simpleName  类名
      * @return TypeName

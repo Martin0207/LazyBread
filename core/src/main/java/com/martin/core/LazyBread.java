@@ -5,10 +5,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 import com.martin.core.interfaces.ILazyCycle;
 import com.martin.core.interfaces.ILazyFragment;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -20,6 +22,7 @@ import java.util.Objects;
  */
 public class LazyBread {
 
+    private static final String TAG = LazyBread.class.getSimpleName();
     /**
      * 懒加载集
      */
@@ -39,7 +42,7 @@ public class LazyBread {
         }
         if (!sCycleMap.containsKey(obj)) {
             String className = obj.getClass().getName();
-            ILazyCycle iLazyCycle = null;
+            ILazyCycle iLazyCycle;
             try {
                 iLazyCycle = (ILazyCycle) Class.forName(className + "$LazyCycle").newInstance();
                 iLazyCycle.init(obj);
@@ -128,8 +131,27 @@ public class LazyBread {
      * 需要用户手动调用
      */
     public static void onUserVisibleHint(Fragment fragment, boolean isUserVisible) {
-        if (sInitMap.containsKey(fragment) && isUserVisible) {
-            Objects.requireNonNull(sInitMap.get(fragment)).call();
+        try {
+            /*
+                获取Fragment的mState属性
+                该属性表示Fragment当前所处生命周期
+             */
+            Class<?> aClass = fragment.getClass();
+            while (!aClass.getSimpleName().equals("Fragment")) {
+                aClass = aClass.getSuperclass();
+            }
+            Field mStateField = aClass.getDeclaredField("mState");
+            mStateField.setAccessible(true);
+            int mState = mStateField.getInt(fragment);
+            if (mState >= 2 && sInitMap.containsKey(fragment) && isUserVisible) {
+                Objects.requireNonNull(sInitMap.get(fragment)).call();
+            }
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+            Log.e(TAG, "onUserVisibleHint: NoSuchFieldException    " + e.getMessage());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            Log.e(TAG, "onUserVisibleHint: IllegalAccessException    " + e.getMessage());
         }
     }
 

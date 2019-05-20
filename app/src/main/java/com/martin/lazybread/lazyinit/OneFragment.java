@@ -30,13 +30,12 @@ public class OneFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         LazyBread.onUserVisibleHint(this, isVisibleToUser);
-        Log.e(TAG, "setUserVisibleHint: ");
+        Log.e(TAG, "setUserVisibleHint: " + isVisibleToUser);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LazyBread.bind(this);
         Log.e(TAG, "onCreate: ");
     }
 
@@ -52,6 +51,7 @@ public class OneFragment extends Fragment {
         View inflate = inflater.inflate(R.layout.normal_fragment, container, false);
         mTv = inflate.findViewById(R.id.tv);
         Log.e(TAG, "onCreateView: ");
+        LazyBread.bind(this);
         return inflate;
     }
 
